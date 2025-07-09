@@ -20,7 +20,7 @@ function App(): React.JSX.Element {
         &nbsp;and <span className="ts">TypeScript</span>
       </div>
       <p className="tip">
-        Please try pressing <code>F12</code> to open the devTool
+        This is v2
       </p>
       <div className="actions">
         <div className="action">
