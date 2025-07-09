@@ -1,8 +1,9 @@
-import { app, shell, BrowserWindow, ipcMain, autoUpdater } from 'electron'
+import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
-
+import { autoUpdater } from 'electron-updater'
+import log from 'electron-log'
 function createWindow(): void {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
@@ -17,11 +18,38 @@ function createWindow(): void {
       contextIsolation: true
     }
   })
+  log.transports.file.level = 'info' // or 'debug'
+  autoUpdater.logger = log
 
-if(app.isPackaged){
-  autoUpdater.checkForUpdates()
-}
+  autoUpdater.on('checking-for-update', () => {
+    log.info('Checking for update...')
+  })
 
+  autoUpdater.on('update-not-available', (info) => {
+    log.info('Update not available.', info)
+  })
+
+  autoUpdater.on('update-available', (info) => {
+    log.info('Update available.', info)
+  })
+
+  autoUpdater.on('error', (err) => {
+    log.error('Error in auto-updater.', err)
+  })
+
+  autoUpdater.on('download-progress', (progressObj) => {
+    let logMessage = `Download speed: ${progressObj.bytesPerSecond} - Downloaded ${progressObj.percent.toFixed(2)}% (${progressObj.transferred}/${progressObj.total})`
+    log.info(logMessage)
+  })
+
+  autoUpdater.on('update-downloaded', (info) => {
+    log.info('Update downloaded; will install on quit', info)
+  })
+
+  /*Checking updates just after app launch and also notify for the same*/
+  app.on('ready', function () {
+    autoUpdater.checkForUpdatesAndNotify()
+  })
 
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()
