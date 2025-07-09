@@ -1,7 +1,14 @@
+import { useEffect, useState } from 'react'
 import Versions from './components/Versions'
 import electronLogo from './assets/electron.svg'
 
 function App(): React.JSX.Element {
+  const [version, setVersion] = useState<string>('')
+
+  useEffect(() => {
+    window.electron.ipcRenderer.invoke('get-app-version').then(setVersion)
+  }, [])
+
   const ipcHandle = (): void => window.electron.ipcRenderer.send('ping')
 
   return (
@@ -27,7 +34,8 @@ function App(): React.JSX.Element {
           </a>
         </div>
       </div>
-      <Versions></Versions>
+      <div className="version">App Version: {version}</div>
+      <Versions />
     </>
   )
 }

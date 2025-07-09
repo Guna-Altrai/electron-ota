@@ -25,6 +25,10 @@ function createWindow(): void {
     log.info('Checking for update...')
   })
 
+  ipcMain.handle('get-app-version', () => {
+    return app.getVersion()
+  })
+
   autoUpdater.on('update-not-available', (info) => {
     log.info('Update not available.', info)
   })
