@@ -1,9 +1,20 @@
 import { useEffect, useState } from 'react'
-import Versions from './components/Versions'
 import electronLogo from './assets/electron.svg'
 
 function App(): React.JSX.Element {
   const [version, setVersion] = useState<string>('')
+  const [updateStatus, setUpdateStatus] = useState<string>('')
+
+  useEffect(() => {
+    window.electron.ipcRenderer.invoke('get-app-version').then(setVersion)
+
+    window.electron.ipcRenderer.on('update-available', () => {
+      setUpdateStatus('Update available! Downloading...')
+    })
+    window.electron.ipcRenderer.on('update-downloaded', () => {
+      setUpdateStatus('Update downloaded. Restarting soon...')
+    })
+  }, [])
 
   useEffect(() => {
     window.electron.ipcRenderer.invoke('get-app-version').then(setVersion)
@@ -13,29 +24,7 @@ function App(): React.JSX.Element {
 
   return (
     <>
-      <img alt="logo" className="logo" src={electronLogo} />
-      <div className="creator">Powered by electron-vite</div>
-      <div className="text">
-        Build an Electron app with <span className="react">React</span>
-        &nbsp;and <span className="ts">TypeScript</span>
-      </div>
-      <p className="tip">
-        This is v2
-      </p>
-      <div className="actions">
-        <div className="action">
-          <a href="https://electron-vite.org/" target="_blank" rel="noreferrer">
-            Documentation
-          </a>
-        </div>
-        <div className="action">
-          <a target="_blank" rel="noreferrer" onClick={ipcHandle}>
-            Send IPC
-          </a>
-        </div>
-      </div>
       <div className="version">App Version: {version}</div>
-      <Versions />
     </>
   )
 }
